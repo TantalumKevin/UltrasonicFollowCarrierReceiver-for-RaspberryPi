@@ -13,6 +13,7 @@ class Motor:
         self.in2 = ctrl[2]
         gpio.setmode(gpio.BOARD)
         #使用PWM类定义EN使能端,PWM频率为1kHz
+        gpio.setup(self.en, gpio.OUT)
         self.EN = gpio.PWM(self.en,1000)
         #占空比为0,确保电机停转
         self.EN.start(0)
@@ -31,14 +32,14 @@ class Motor:
     '''
     def symbol(self,num):
         #符号函数
-        return 1 if num>0 else -1 if num<0 else 0 
+        return 1 if num>0 else 0 
 
     def run(self,speed):
         #输入要求：
         #speed∈[-1,1]
         gpio.output(self.in1,self.symbol(speed))
-        gpio.output(self.in2,-self.symbol(speed))
-        self.EN.ChangeDutyCycle(int(100*speed))
+        gpio.output(self.in2,1-self.symbol(speed))
+        self.EN.ChangeDutyCycle(abs(100*speed))
 
 
     def brake(self):
