@@ -32,7 +32,7 @@ class Motor:
     '''
     def symbol(self,num):
         #符号函数
-        return 1 if num>0 else 0 
+        return 1 if num>=0 else 0 
 
     def run(self,speed):
         #输入要求：
