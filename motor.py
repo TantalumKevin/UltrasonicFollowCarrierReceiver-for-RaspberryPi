@@ -14,6 +14,7 @@ class Motor:
         gpio.setmode(gpio.BOARD)
         #使用PWM类定义EN使能端,PWM频率为1kHz
         gpio.setup(self.en, gpio.OUT)
+        gpio.setup(self.en, gpio.OUT)
         self.EN = gpio.PWM(self.en,1000)
         #占空比为0,确保电机停转
         self.EN.start(0)
@@ -52,27 +53,10 @@ class Motor:
         gpio.output(self.in2,0)
         self.EN.ChangeDutyCycle(0)
 
-class Edge:
-    '''
-    单侧控制类,包含
-    当前控制电机类
-    当前速度
-    运动(函数)
-    '''
-    def __init__(self,ctrl1,ctrl2):
-        self.motor1 = Motor(ctrl1)#前轮
-        self.motor2 = Motor(ctrl2)#后轮
-        self.speed = 0
-    
-    def follow(self,speed):
-        self.speed = speed
-        motor1.run(speed)
-        motor2.run(speed)
-
 class Platform:
     '''
     平台整体控制类,包含
-    两侧控制类
+    两侧电机控制类
     当前速度
     pid(参数)
     pid(函数)
@@ -80,9 +64,9 @@ class Platform:
     并    out=d(i(p(in)))
     运动(函数)
     '''
-    def __init__(self,dists,angle,ctrl):
-        self.Left = Edge(ctrl[0],ctrl[1])#前轮
-        self.Right = Edge(ctrl[2],ctrl[3])#后轮
+    def __init__(self,ctrl,dists=0,angle=0):
+        self.Left = Motor(ctrl[0])#前轮
+        self.Right = Motor(ctrl[1])#后轮
         self.speed = [0,0]
         self.DISTS = dists
         self.ANGLE = angle
@@ -92,10 +76,14 @@ class Platform:
         self.app = 0.01
         self.api = 0.01
         self.apd = 0.01
+    
+    def set_Config(self,dists,angle):
+        self.DISTS = dists
+        self.ANGLE = angle
 
     def PID(self,data):
-        dists = data[0] - self.DISTS
-        angle = data[1] - self.ANGLE
+        dists = [dist - self.DISTS for dist in data[0]]
+        angle = [angl - self.ANGLE for angl in data[0]]
         self.speed[0] += self.dpp*dists[-1]+self.dpi*np.sum(dists)+self.dpd*(dists[-1]-dists[-2])
         self.speed[1] += self.app*angle[-1]+self.api*np.sum(angle)+self.apd*(angle[-1]-angle[-2])
 
@@ -104,6 +92,6 @@ class Platform:
         #0:距离
         #1:角度
         #PID 更新当前速度
-        self.PID(speed,data)
-        Left.follow(self.speed[0]-self.speed[1])
-        Right.follow(self.speed[0]+self.speed[1])
+        self.PID(data)
+        self.Left.run(self.speed[0]-self.speed[1])
+        self.Right.run(self.speed[0]+self.speed[1])
