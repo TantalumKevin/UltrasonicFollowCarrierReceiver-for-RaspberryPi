@@ -2,7 +2,7 @@ import motor,time
 import numpy as np
 
 #       en,in1,in2
-ctrl = [[3,5,7],[8,10,12]]
+ctrl = [[3,5,7],[12,8,10]]
 
 mt0 = motor.Motor(ctrl[0])
 mt1 = motor.Motor(ctrl[1])
