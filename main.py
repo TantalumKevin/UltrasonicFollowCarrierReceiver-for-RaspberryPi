@@ -7,15 +7,25 @@ import RPi.GPIO as gpio
 #开机初始化
 #循环接受数据
 #PID调速
+#开串口
 ser = serial.Serial("/dev/ttyAMA0", 115200)
+#设置GPIO编号模式:根据PCB编号
+gpio.setmode(gpio.BOARD)
+#清空40Pin所有使用引脚,以便后续复用
+#巨坑！
+gpio.cleanup([7])
+gpio.cleanup([x for x in range(1,40)])
 
 def serial_read(count=0):
     while not count:
+        # 没有收到字符就重复获取等待
         # 获得接收缓冲区字符
         count = ser.inWaiting()
         recv = ser.read(count)
         # 清空接收缓冲区
-        ser.flushInput()
+        #ser.flushInput()
+        # 必要的软件延时
+        time.sleep(0.1)
     #print(recv)
     return recv
 
@@ -45,9 +55,6 @@ def init_motor(sonic_en=7):
         #print((recv == b"steste")-10086)
         if recv == b"steste":
             break
-        # 必要的软件延时
-        time.sleep(0.1)
-
 
 if __name__ == '__main__':
     while True:
@@ -59,23 +66,18 @@ if __name__ == '__main__':
         else :
             ser.write(b"s0e")
             break
-    print("!!!!!!")
+    #print("!!!!!!")
     data=[[0.0], [0.0]]
     try:
         while True:
-            recv = serial_read()
-            print(recv)
-            if recv == b"s":
-                recv = float(serial_read())
-                print(recv)
-                data[0].append(recv)
-                time.sleep(0.1)
-                recv = float(serial_read())
-                print(recv)
-                data[1].append(recv)
-                print(data)
+            if serial_read() == b"s":
+                data[0].append(float(serial_read()))
+                data[1].append(float(serial_read()))
+                #print(data)
                 pf.RUN(data)
                 _ = serial_read()
+        gpio.cleanup([x for x in range(1,40)])
     except KeyboardInterrupt:
         if ser != None:
             ser.close()
+            gpio.cleanup([x for x in range(1,40)])
