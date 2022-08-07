@@ -39,7 +39,11 @@ class Motor:
         #speed∈[-1,1]
         gpio.output(self.in1,self.symbol(speed))
         gpio.output(self.in2,-self.symbol(speed))
-        self.EN.ChangeDutyCycle(int(100*speed))
+        print("speed     = "+str(speed))
+        #这里为了防止输入的speed超出范围应该加入一个速度控制
+        speed = speed if abs(speed)<=1 else -1 if speed<0 else 1
+        print("speed_fix = "+str(speed))
+        self.EN.ChangeDutyCycle(float(100*speed))
 
 
     def brake(self):
