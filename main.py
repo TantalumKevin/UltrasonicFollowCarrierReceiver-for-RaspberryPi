@@ -68,16 +68,22 @@ if __name__ == '__main__':
             break
     #print("!!!!!!")
     data=[[0.0], [0.0]]
-    try:
-        while True:
-            if serial_read() == b"s":
-                data[0].append(float(serial_read()))
-                data[1].append(float(serial_read()))
-                #print(data)
-                pf.RUN(data)
-                _ = serial_read()
-        gpio.cleanup([x for x in range(1,40)])
-    except KeyboardInterrupt:
-        if ser != None:
-            ser.close()
+    while True:
+        try:
+            while True:
+                if serial_read() == b"s":
+                    data[0].append(float(serial_read()))
+                    data[1].append(float(serial_read()))
+                    #print(data)
+                    pf.RUN(data)
+                    _ = serial_read()
             gpio.cleanup([x for x in range(1,40)])
+        except KeyboardInterrupt:
+            if ser != None:
+                ser.close()
+                gpio.cleanup([x for x in range(1,40)])
+        except ValueError:
+            #出现这个报错应该是因为数据传输出问题了
+            #可能需要检查接线
+            #可以的话可以再加入一个报错灯
+            pass
