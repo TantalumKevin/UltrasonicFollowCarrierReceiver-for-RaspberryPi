@@ -1,5 +1,4 @@
-import RPi.GPIO as gpio
-import numpy as np
+import RPi.GPIO as gpio, numpy as np, time
 
 class Motor:
     '''
@@ -95,3 +94,10 @@ class Platform:
         self.PID(data)
         self.Left.run(self.speed[0]-self.speed[1])
         self.Right.run(self.speed[0]+self.speed[1])
+        
+    def test(self):
+        self.Left.run(1)
+        self.Right.run(-1)
+        time.sleep(0.2)
+        self.Left.stop()
+        self.Right.stop()
