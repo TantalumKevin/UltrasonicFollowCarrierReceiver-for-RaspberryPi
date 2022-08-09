@@ -1,10 +1,4 @@
-import time
-
-import numpy as np
-import RPi.GPIO as gpio
-import serial
-
-import motor
+import time,serial,motor,RPi.GPIO as gpio
 
 
 #串口发送
