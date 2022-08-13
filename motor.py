@@ -14,7 +14,6 @@ class Motor:
         gpio.setmode(gpio.BOARD)
         #使用PWM类定义EN使能端,PWM频率为1kHz
         gpio.setup(self.en, gpio.OUT)
-        gpio.setup(self.en, gpio.OUT)
         self.EN = gpio.PWM(self.en,1000)
         #占空比为0,确保电机停转
         self.EN.start(0)
