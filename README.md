@@ -38,7 +38,10 @@
 4. 传感器数据回报格式:```"s"```->```数据```->```"e"```；回报顺序:……忘了
 
 ### 3.2 电机驱动
-| en | in1 | in2 | Effect(效果) |
+
+本项目电机驱动采用L298N双路电机驱动模块，同侧前轮后轮电机共用一路，从而实现```前进```、```后退```以及```差速转向```。<br>
+L298N驱动模块驱动表如下:
+| EN | IN1 | IN2 | Effect(效果) |
 |:-----:|:-----:|:-----:|:-----:|
 | 0 | x | x | 空 |
 | 1 | 0 | 0 | 空 |
@@ -46,3 +49,59 @@
 | 1 | 1 | 0 | 正 |
 | 1 | 1 | 1 | 制动 |
 
+为实现电机转速可调，可在使能端(EN)施加PWM波用以调速。
+
+```motor.py```中对隔引脚定义如下:
+```Python
+class Motor:
+    def __init__(self,ctrl):
+        #ctrl为三元素列表，包含三个功能引脚的标号(以BOARD方式计)
+        self.en = ctrl[0]
+        self.in1 = ctrl[1]
+        self.in2 = ctrl[2]
+        gpio.setmode(gpio.BOARD)
+        #使用PWM类定义EN使能端,PWM频率为1kHz
+        gpio.setup(self.en, gpio.OUT)
+        gpio.setup(self.en, gpio.OUT)
+        self.EN = gpio.PWM(self.en,1000)
+        #占空比为0,确保电机停转
+        self.EN.start(0)
+        gpio.setup(self.in1, gpio.OUT)
+        gpio.setup(self.in2, gpio.OUT)
+```
+
+同时可根据驱动表写出运动函数:
+```Python
+class Motor:
+    def symbol(self,num):
+        #符号函数,为run函数判断运动方向
+        return 1 if num>=0 else 0 
+
+    def run(self,speed):
+        #运动函数
+        #输入要求：
+        #speed∈[-1,1]
+        gpio.output(self.in1,self.symbol(speed))
+        gpio.output(self.in2,1-self.symbol(speed))
+        self.EN.ChangeDutyCycle(abs(100*speed))
+
+
+    def brake(self):
+        #刹车函数-施加反向作用力
+        gpio.output(self.in1,1)
+        gpio.output(self.in2,1)
+        self.EN.ChangeDutyCycle(100)
+
+    def stop(self):
+        #停转函数-电机自由转动
+        gpio.output(self.in1,0)
+        gpio.output(self.in2,0)
+        self.EN.ChangeDutyCycle(0)
+```
+
+而```./motor.py```中包含的```Platform```类则是根据项目需求封装的更高级别的类，以驱动四个电机，包含;
+- 初始化函数(  ```__init(self,ctrl,dists=0,angle=0)```)
+- 参数设置函数(```set_Config(self,dists,angle)```)
+- PID调速函数(```PID(self,data)```)
+- 运动函数(```RUN(self,data)```)
+- 测试函数(```test(self)```),用于测试电机情况
