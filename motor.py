@@ -32,7 +32,7 @@ class Motor:
     | 1 | 1 | 1 | 制动 |
     '''
     def symbol(self,num):
-        #符号函数
+        #符号函数,为run函数判断运动方向
         return 1 if num>=0 else 0 
 
     def run(self,speed):
