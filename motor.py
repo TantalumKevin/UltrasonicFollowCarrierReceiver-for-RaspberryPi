@@ -36,6 +36,7 @@ class Motor:
         return 1 if num>=0 else 0 
 
     def run(self,speed):
+        #运动函数
         #输入要求：
         #speed∈[-1,1]
         gpio.output(self.in1,self.symbol(speed))
@@ -44,11 +45,13 @@ class Motor:
 
 
     def brake(self):
+        #刹车函数-施加反向作用力
         gpio.output(self.in1,1)
         gpio.output(self.in2,1)
         self.EN.ChangeDutyCycle(100)
 
     def stop(self):
+        #停转函数-电机自由转动
         gpio.output(self.in1,0)
         gpio.output(self.in2,0)
         self.EN.ChangeDutyCycle(0)
