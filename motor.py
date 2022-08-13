@@ -7,6 +7,7 @@ class Motor:
     运动（函数）方向、速度-归一化
     '''
     def __init__(self,ctrl):
+        #ctrl为三元素列表，包含三个功能引脚的标号(以BOARD方式计)
         self.en = ctrl[0]
         self.in1 = ctrl[1]
         self.in2 = ctrl[2]
