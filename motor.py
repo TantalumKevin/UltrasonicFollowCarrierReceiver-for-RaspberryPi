@@ -13,8 +13,10 @@ class Motor:
         self.in2 = ctrl[2]
         gpio.setmode(gpio.BOARD)
         #使用PWM类定义EN使能端,PWM频率为1kHz
+        #考虑到电机堵转异响,同时为防止高频异响影响传感器工作
+        #将PWM调速频率提升至30kHz
         gpio.setup(self.en, gpio.OUT)
-        self.EN = gpio.PWM(self.en,1000)
+        self.EN = gpio.PWM(self.en,30*1000)
         #占空比为0,确保电机停转
         self.EN.start(0)
         gpio.setup(self.in1, gpio.OUT)
