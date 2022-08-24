@@ -18,7 +18,7 @@ class Motor:
         #也为了保证L298N驱动芯片工作频率低于最高频率
         #将PWM调速频率提升至25kHz
         gpio.setup(self.en, gpio.OUT)
-        self.EN = gpio.PWM(self.en,25*1000)
+        self.EN = gpio.PWM(self.en,50)
         #占空比为0,确保电机停转
         self.EN.start(0)
         gpio.setup(self.in1, gpio.OUT)
