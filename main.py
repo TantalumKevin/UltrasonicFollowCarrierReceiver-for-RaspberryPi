@@ -77,7 +77,7 @@ if __name__ == '__main__':
         init_motor()
         try:
             #尝试建立平台类
-            pf = motor.Platform([[11,13,15],[22,16,18]])
+            pf = motor.Platform([[11,13,15,0.92],[22,16,18,1]])
             pf.test()
         except :
             ser.write(b"s1e")

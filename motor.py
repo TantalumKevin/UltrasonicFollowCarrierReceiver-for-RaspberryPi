@@ -73,8 +73,9 @@ class Platform:
     运动(函数)
     '''
     def __init__(self,ctrl,dists=0,angle=0):
-        self.Left = Motor(ctrl[0])#前轮
-        self.Right = Motor(ctrl[1])#后轮
+        self.Left = Motor(ctrl[0][0:3])#左轮
+        self.Right = Motor(ctrl[1][0:3])#右轮
+        self.rate = [ctrl[0][3],ctrl[1][3]]
         self.speed = [0,0]
         self.DISTS = dists
         self.ANGLE = angle
@@ -101,8 +102,8 @@ class Platform:
         #1:角度
         #PID 更新当前速度
         self.PID(data)
-        self.Left.run(self.speed[0]-self.speed[1])
-        self.Right.run(self.speed[0]+self.speed[1])
+        self.Left.run((self.speed[0]-self.speed[1])*self.rate[0])
+        self.Right.run((self.speed[0]+self.speed[1]*self.rate[1]))
         
     def test(self):
         self.Left.run(1)
