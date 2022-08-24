@@ -1,6 +1,6 @@
 import motor,time
 import numpy as np
-
+import RPi.GPIO as gpio
 #       en,in1,in2
 ctrl = [[3,5,7],[12,8,10]]
 
@@ -17,3 +17,5 @@ mt1.run(-1)
 time.sleep(1)
 mt0.run(0)
 mt1.run(0)
+
+gpio.cleanup()
