@@ -2,7 +2,7 @@ import motor,time
 import numpy as np
 import RPi.GPIO as gpio
 #       en,in1,in2
-ctrl = [[3,5,7],[12,8,10]]
+ctrl = [[11,13,15],[22,16,18]]
 
 mt0 = motor.Motor(ctrl[0])
 mt1 = motor.Motor(ctrl[1])
