@@ -21,7 +21,9 @@ class Motor:
         self.EN.start(0)
         gpio.setup(self.in1, gpio.OUT)
         gpio.setup(self.in2, gpio.OUT)
-        #gpio.output(en, gpio.LOW)
+        #异常关机必然导致控制异常,故必须在初始化时强调低电平
+        gpio.output(self.in1, gpio.LOW)
+        gpio.output(self.in2, gpio.LOW)
         #gpio.cleanup()
     '''
     L298N 驱动表
