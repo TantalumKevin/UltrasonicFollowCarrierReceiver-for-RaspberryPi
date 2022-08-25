@@ -14,8 +14,6 @@ for i in range(20,100):
 '''
 mt0.run(1)
 mt1.run(1)
-a = 1
-
 while True:
     time.sleep(3)
 
