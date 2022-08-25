@@ -105,3 +105,10 @@ class Motor:
 - PID调速函数(```PID(self,data)```)
 - 运动函数(```RUN(self,data)```)
 - 测试函数(```test(self)```),用于测试电机情况
+
+
+#### 本项目其他仓库传送门
+| Transmitter for Arduino UNO | Transmitter PCB | Receiver for Raspberry Pi | Receiver for STM32F103 | Receiver PCB |
+| ---- | ---- | ---- | ---- | ---- |
+| [Github](https://github.com/TantalumKevin/UltrasonicFollowCarrierTransmitter-for-ArduinoUNO) | [Github](https://github.com/TantalumKevin/UltrasonicFollowCarrierTransmitter-PCB) | [Github](https://github.com/TantalumKevin/UltrasonicFollowCarrierReceiver-for-RaspberryPi)  | [Github](https://github.com/TantalumKevin/UltrasonicFollowCarrierReceiver-for-STM32F103) | [Github](https://github.com/TantalumKevin/UltrasonicFollowCarrierReceiver-PCB) |
+| [Gitee](https://gitee.com/kevin_ud/ultrasonic-follow-carrier-transmitter-for-arduino-uno)  | [Gitee](https://gitee.com/kevin_ud/ultrasonic-follow-carrier-transmitter-pcb) | [Gitee](https://gitee.com/kevin_ud/ultrasonic-follow-carrier)  | [Gitee](https://gitee.com/kevin_ud/ultrasonic-follow-carrier-receiver-for-stm32-f103) | [Gitee](https://gitee.com/kevin_ud/ultrasonic-follow-carrier-receiver-pcb) |
