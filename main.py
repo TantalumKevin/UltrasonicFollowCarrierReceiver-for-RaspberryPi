@@ -56,7 +56,10 @@ def init_motor(sonic_en=7):
 #开机初始化
 #循环接受数据
 #PID调速
-
+#检测是否进入调试模式
+gpio.setup(7, gpio.IN)
+if gpio.input(7) :
+    exit()
 #开串口
 ser = serial.Serial("/dev/ttyAMA0", 115200)
 #设置GPIO编号模式:根据PCB编号
@@ -73,7 +76,7 @@ gpio.setmode(gpio.BOARD)
 
 if __name__ == '__main__':
     
-    while True:
+    while not gpio.input(7):
         init_motor()
         try:
             #尝试建立平台类
@@ -90,7 +93,7 @@ if __name__ == '__main__':
     data=[[0.0],[0.0], [0.0]]
     error_times = 0
     stop_flag = False
-    while True:
+    while not gpio.input(7):
         try:
             temp=[]
             for index in range(3):
@@ -125,3 +128,6 @@ if __name__ == '__main__':
                 pf.stop()
                 stop_flag = True
             pass
+    if ser != None:
+        ser.close()
+        gpio.cleanup([x for x in range(1,40)])
