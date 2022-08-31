@@ -107,6 +107,7 @@ class Motor:
 - 运动函数(```RUN(self,data)```)
 - 测试函数(```test(self)```),用于测试电机情况
 
+
 #### 本项目其他仓库传送门
 | Transmitter for Arduino UNO | Transmitter PCB | Receiver for Raspberry Pi | Receiver for STM32F103 | Receiver PCB |
 | ---- | ---- | ---- | ---- | ---- |
