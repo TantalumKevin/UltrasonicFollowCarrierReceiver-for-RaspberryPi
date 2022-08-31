@@ -63,7 +63,7 @@ gpio.setmode(gpio.BOARD)
 #检测是否进入调试模式
 gpio.setup(7, gpio.IN)
 if gpio.input(7) :
-    with open("out.log","a") as log:
+    with open("/home/pi/ultrasonic-follow-carrier/out.log","a") as log:
         log.write("\nExit @ "+time.strftime('%Y-%m-%d %H:%M:%S'))
     exit()
 #开串口
@@ -137,6 +137,6 @@ if __name__ == '__main__':
     if ser != None:
         ser.close()
     gpio.cleanup([x for x in range(1,40)])
-    with open("out.log","a") as log:
+    with open("/home/pi/ultrasonic-follow-carrier/out.log","a") as log:
         log.write("\nExit @ "+time.strftime('%Y-%m-%d %H:%M:%S'))
     exit()
