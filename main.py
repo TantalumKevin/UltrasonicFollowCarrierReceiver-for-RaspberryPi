@@ -1,7 +1,7 @@
 import time,serial,motor,RPi.GPIO as gpio
 
 
-#串口发送
+#串口接收
 def serial_read(count=0):
     while not count:
         # 没有收到字符就重复获取等待
@@ -85,6 +85,8 @@ if __name__ == '__main__':
             ser.write(b"s0e")
             break
     #print("!!!!!!")
+    init_data=serial_read()
+    pf.set_Config(init_data,0)
     data=[[0.0],[0.0], [0.0]]
     error_times = 0
     stop_flag = False
@@ -95,8 +97,17 @@ if __name__ == '__main__':
                 if serial_read() == b"s":
                     temp.append(float(serial_read()))
                     #print(data[index])
-                    _ = serial_read()
-            
+                    _ = serial_read()#应该是b"e"
+            # 根据通信输出结果
+            result = [(temp[1]+temp[2])/2,temp[0]]
+            # 计算dis和agl后输入data中
+            data.append(result)
+
+            # 注意data数据量以防止溢出
+            if len(data) >200:
+                # 数据组应该是50Hz收入
+                # 200组即保留时间4s
+                data.pop(0)
             pf.RUN(data)
             error_times = error_times-1 if error_times else error_times
         except KeyboardInterrupt:

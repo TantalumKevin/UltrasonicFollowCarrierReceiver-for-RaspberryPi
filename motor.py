@@ -92,7 +92,7 @@ class Platform:
 
     def PID(self,data):
         dists = [dist - self.DISTS for dist in data[0]]
-        angle = [angl - self.ANGLE for angl in data[0]]
+        angle = [angl - self.ANGLE for angl in data[1]]
         self.speed[0] += self.dpp*dists[-1]+self.dpi*np.sum(dists)+self.dpd*(dists[-1]-dists[-2])
         self.speed[1] += self.app*angle[-1]+self.api*np.sum(angle)+self.apd*(angle[-1]-angle[-2])
 
@@ -101,6 +101,8 @@ class Platform:
         #0:距离
         #1:角度
         #PID 更新当前速度
+        #顺时针为角度正方向
+        #故应在右轮施加正速度以抵消正偏角
         self.PID(data)
         self.Left.run((self.speed[0]-self.speed[1])*self.rate[0])
         self.Right.run((self.speed[0]+self.speed[1]*self.rate[1]))
