@@ -56,13 +56,19 @@ def init_motor(sonic_en=7):
 #开机初始化
 #循环接受数据
 #PID调速
+
+#设置GPIO编号模式:根据PCB编号
+
+gpio.setmode(gpio.BOARD)
 #检测是否进入调试模式
 gpio.setup(7, gpio.IN)
 if gpio.input(7) :
+    with open("out.log","a") as log:
+        log.write("\nExit @ "+time.strftime('%Y-%m-%d %H:%M:%S'))
     exit()
 #开串口
 ser = serial.Serial("/dev/ttyAMA0", 115200)
-#设置GPIO编号模式:根据PCB编号
+
 gpio.setmode(gpio.BOARD)
 
 #清空40Pin所有使用引脚,以便后续复用
@@ -116,7 +122,7 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
             if ser != None:
                 ser.close()
-                gpio.cleanup([x for x in range(1,40)])
+            gpio.cleanup([x for x in range(1,40)])
         except ValueError :
             #出现这个报错应该是因为数据传输出问题了
             #可能需要检查接线
@@ -130,4 +136,7 @@ if __name__ == '__main__':
             pass
     if ser != None:
         ser.close()
-        gpio.cleanup([x for x in range(1,40)])
+    gpio.cleanup([x for x in range(1,40)])
+    with open("out.log","a") as log:
+        log.write("\nExit @ "+time.strftime('%Y-%m-%d %H:%M:%S'))
+    exit()
