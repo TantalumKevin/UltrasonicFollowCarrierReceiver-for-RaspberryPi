@@ -61,6 +61,7 @@ def init_motor(sonic_en=7):
 
 gpio.setmode(gpio.BOARD)
 #检测是否进入调试模式
+# 截断程序
 gpio.setup(7, gpio.IN)
 if gpio.input(7) :
     with open("/home/pi/ultrasonic-follow-carrier/out.log","a") as log:
