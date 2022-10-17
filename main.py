@@ -1,5 +1,8 @@
 import time,serial,motor,RPi.GPIO as gpio
 
+class SonicError(Exception):
+    def __init__(self, ):
+        pass
 
 #串口接收
 def serial_read(count=0):
@@ -68,7 +71,7 @@ if gpio.input(7) :
         log.write("\nExit @ "+time.strftime('%Y-%m-%d %H:%M:%S'))
     exit()
 #开串口
-ser = serial.Serial("/dev/ttyAMA0", 115200)
+ser = serial.Serial("/dev/ttyAMA0", 460800)
 
 gpio.setmode(gpio.BOARD)
 
@@ -84,57 +87,69 @@ gpio.setmode(gpio.BOARD)
 if __name__ == '__main__':
     
     while not gpio.input(7):
-        init_motor()
-        try:
-            #尝试建立平台类
-            pf = motor.Platform([[11,13,15,0.92],[22,16,18,1]])
-            pf.test()
-        except :
-            ser.write(b"s1e")
-        else :
-            ser.write(b"s0e")
-            break
-    #print("!!!!!!")
-    init_data=serial_read()
-    pf.set_Config(init_data,0)
-    data=[[0.0],[0.0], [0.0]]
-    error_times = 0
-    stop_flag = False
-    while not gpio.input(7):
-        try:
-            temp=[]
-            for index in range(3):
-                if serial_read() == b"s":
-                    temp.append(float(serial_read()))
-                    #print(data[index])
-                    _ = serial_read()#应该是b"e"
-            # 根据通信输出结果
-            result = [(temp[1]+temp[2])/2,temp[0]]
-            # 计算dis和agl后输入data中
-            data.append(result)
+        while not gpio.input(7):
+            init_motor()
+            try:
+                #尝试建立平台类
+                pf = motor.Platform([[11,13,15,0.92],[22,16,18,1]])
+                pf.test()
+            except :
+                ser.write(b"s1e")
+            else :
+                ser.write(b"s0e")
+                break
+        #print("!!!!!!")
+        while True:
+            temp=serial_read()
+            if temp[0] == b"s" and temp[-1] == b"e":
+                init_data = int(temp[1:])
+                break
+        pf.set_Config(init_data,0)
+        data=[[0.0],[0.0], [0.0]]
+        error_times = 0
+        stop_flag = False
+        while not gpio.input(7):
+            try:
+                temp = []
+                for index in range(2):
+                    temp_data = serial_read()
+                    if temp_data == b"sreboote":
+                        break
+                    if temp_data[0] == b"s":
+                        temp.append(int(temp_data[1:]))
+                #print(data[index])
+                # 根据通信输出结果
+                if temp_data == b"sreboote":
+                    #接收到重启指令
+                    raise SonicError()
+                result = [(temp[1]+temp[0])/2,temp[1]-temp[0]]
+                # 计算dis和agl后输入data中
+                data.append(result)
 
-            # 注意data数据量以防止溢出
-            if len(data) >200:
-                # 数据组应该是50Hz收入
-                # 200组即保留时间4s
-                data.pop(0)
-            pf.RUN(data)
-            error_times = error_times-1 if error_times else error_times
-        except KeyboardInterrupt:
-            if ser != None:
-                ser.close()
-            gpio.cleanup([x for x in range(1,40)])
-        except ValueError :
-            #出现这个报错应该是因为数据传输出问题了
-            #可能需要检查接线
-            #可以的话可以再加入一个报错灯
-            error_times += 1
-            if not error_times:
-                stop_flag = False
-            if error_times >=100 or stop_flag:
-                pf.stop()
-                stop_flag = True
-            pass
+                # 注意data数据量以防止溢出
+                if len(data) >200:
+                    # 数据组应该是50Hz收入
+                    # 200组即保留时间4s
+                    data.pop(0)
+                pf.RUN(data)
+                error_times = error_times-1 if error_times else error_times
+            except KeyboardInterrupt:
+                if ser != None:
+                    ser.close()
+                gpio.cleanup([x for x in range(1,40)])
+            except ValueError :
+                #出现这个报错应该是因为数据传输出问题了
+                #可能需要检查接线
+                #可以的话可以再加入一个报错灯
+                error_times += 1
+                if not error_times:
+                    stop_flag = False
+                if error_times >=100 or stop_flag:
+                    pf.stop()
+                    stop_flag = True
+                pass
+            except SonicError :
+                break
     if ser != None:
         ser.close()
     gpio.cleanup([x for x in range(1,40)])
