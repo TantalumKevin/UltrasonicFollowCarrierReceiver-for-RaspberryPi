@@ -44,9 +44,11 @@ class Motor:
         #运动函数
         #输入要求：
         #speed∈[-1,1]
+        if abs(speed)>100:
+            speed = speed/abs(speed)*100
         gpio.output(self.in1,self.symbol(speed))
         gpio.output(self.in2,1-self.symbol(speed))
-        self.EN.ChangeDutyCycle(abs(100*speed))
+        self.EN.ChangeDutyCycle(int(abs(100*speed)))
 
 
     def brake(self):
@@ -96,21 +98,24 @@ class Platform:
         self.speed[0] += self.dpp*dists[-1]+self.dpi*np.sum(dists)+self.dpd*(dists[-1]-dists[-2])
         self.speed[1] += self.app*angle[-1]+self.api*np.sum(angle)+self.apd*(angle[-1]-angle[-2])
 
-    def RUN(self,data):
+    def RUN(self):
         #传入data:二重list,具有最近一段采样时间的一定数量的数据
         #0:距离
         #1:角度
         #PID 更新当前速度
         #顺时针为角度正方向
         #故应在右轮施加正速度以抵消正偏角
-        self.PID(data)
-        print(self.speed)
+        print((self.speed[0]-self.speed[1])*self.rate[0],(self.speed[0]+self.speed[1])*self.rate[1])
         self.Left.run((self.speed[0]-self.speed[1])*self.rate[0])
-        self.Right.run((self.speed[0]+self.speed[1]*self.rate[1]))
+        self.Right.run((self.speed[0]+self.speed[1])*self.rate[1])
         
     def test(self):
         self.Left.run(1)
         self.Right.run(-1)
         time.sleep(0.2)
+        self.Left.stop()
+        self.Right.stop()
+        
+    def STOP(self):
         self.Left.stop()
         self.Right.stop()

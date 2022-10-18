@@ -44,16 +44,18 @@ def init_motor(sonic_en=7):
         #recv = serial_read()  
         #print(recv)
         #print((recv == b"steste")-10086)
-        ser.write("shelloe")
-        if serial_read() == b"shelloe":
+        ser.write(b"shelloe")
+        temp = serial_read()
+        if temp[0:7] == b"shelloe":
             break
 
     while True:
         #recv = serial_read()  
         #print(recv)
         #print((recv == b"steste")-10086)
-        if serial_read() == b"steste":
+        if temp[-6:] == b"steste":
             break
+        temp = serial_read()
 
 #全流程：
 #开机初始化
@@ -92,45 +94,43 @@ if __name__ == '__main__':
             try:
                 #尝试建立平台类
                 pf = motor.Platform([[11,13,15,0.92],[22,16,18,1]])
-                pf.test()
+                # pf.test()
             except :
                 ser.write(b"s1e")
             else :
                 ser.write(b"s0e")
                 break
-        #print("!!!!!!")
+        # print("!!!!!!")
         while True:
-            temp=serial_read()
-            if temp[0] == b"s" and temp[-1] == b"e":
-                init_data = int(temp[1:])
+            temp=str(serial_read())
+            if temp[2] == "s":
+                inde = temp.find('e')
+                if inde == -1 :
+                    continue
+                init_data = int(temp[3:inde])
                 break
         pf.set_Config(init_data,0)
-        data=[[0.0],[0.0], [0.0]]
+        data=[[0,0]]
         error_times = 0
         stop_flag = False
         while not gpio.input(7):
             try:
-                temp = []
-                for index in range(2):
-                    temp_data = serial_read()
-                    if temp_data == b"sreboote":
-                        break
-                    if temp_data[0] == b"s":
-                        temp.append(int(temp_data[1:]))
-                #print(data[index])
-                # 根据通信输出结果
-                if temp_data == b"sreboote":
+                temp_data = serial_read()
+                if temp_data[0:11] == b'sreboote':
                     #接收到重启指令
+                    print(1)
                     raise SonicError()
-                result = [(temp[1]+temp[0])/2,temp[1]-temp[0]]
+                temp = temp_data.decode().split('e')[0].replace("sl","").split('r')
+                # 根据通信输出结果
                 # 计算dis和agl后输入data中
+                result = [(int(temp[1])+int(temp[0]))/2,int(temp[1])-int(temp[0])]
                 data.append(result)
-
                 # 注意data数据量以防止溢出
                 if len(data) >200:
                     # 数据组应该是50Hz收入
                     # 200组即保留时间4s
                     data.pop(0)
+                pf.PID(data)
                 pf.RUN(data)
                 error_times = error_times-1 if error_times else error_times
             except KeyboardInterrupt:
@@ -145,11 +145,13 @@ if __name__ == '__main__':
                 if not error_times:
                     stop_flag = False
                 if error_times >=100 or stop_flag:
-                    pf.stop()
+                    pf.STOP()
                     stop_flag = True
                 pass
             except SonicError :
                 break
+            except:
+                continue
     if ser != None:
         ser.close()
     gpio.cleanup([x for x in range(1,40)])
