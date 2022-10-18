@@ -12,14 +12,10 @@ for i in range(20,100):
     mt1.run(i/100)
     time.sleep(0.02)
 '''
-mt0.run(1)
-mt1.run(-1)
-try:
-    while True:
-        time.sleep(3)
-except:
-    pass
-#time.sleep(3)
+mt0.run(0.5)
+mt1.run(0.5)
+
+time.sleep(0.5)
 mt0.run(0)
 mt1.run(0)
 
