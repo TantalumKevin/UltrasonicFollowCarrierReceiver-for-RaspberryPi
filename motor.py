@@ -48,7 +48,7 @@ class Motor:
             speed = speed/abs(speed)*100
         gpio.output(self.in1,self.symbol(speed))
         gpio.output(self.in2,1-self.symbol(speed))
-        self.EN.ChangeDutyCycle(int(abs(100*speed)))
+        self.EN.ChangeDutyCycle(abs(speed))
 
 
     def brake(self):
@@ -105,14 +105,14 @@ class Platform:
         #PID 更新当前速度
         #顺时针为角度正方向
         #故应在右轮施加正速度以抵消正偏角
-        print((self.speed[0]-self.speed[1])*self.rate[0],(self.speed[0]+self.speed[1])*self.rate[1])
+        # print((self.speed[0]-self.speed[1])*self.rate[0],(self.speed[0]+self.speed[1])*self.rate[1])
         self.Left.run((self.speed[0]-self.speed[1])*self.rate[0])
         self.Right.run((self.speed[0]+self.speed[1])*self.rate[1])
         
     def test(self):
-        self.Left.run(1)
-        self.Right.run(-1)
-        time.sleep(0.2)
+        self.Left.run(100)
+        self.Right.run(100)
+        time.sleep(1)
         self.Left.stop()
         self.Right.stop()
         

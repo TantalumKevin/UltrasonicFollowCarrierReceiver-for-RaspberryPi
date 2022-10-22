@@ -115,23 +115,27 @@ if __name__ == '__main__':
         stop_flag = False
         while not gpio.input(7):
             try:
-                temp_data = serial_read()
-                if temp_data[0:11] == b'sreboote':
+                temp_data = serial_read().decode()
+                # print("len=",len(temp_data))
+                # print(temp_data)
+                if temp_data[0:11] == 'sreboote':
                     #接收到重启指令
-                    print(1)
+                    #print(1)
                     raise SonicError()
-                temp = temp_data.decode().split('e')[0].replace("sl","").split('r')
+                temp = temp_data.split('e')[0].replace("sl","").split('r')
                 # 根据通信输出结果
                 # 计算dis和agl后输入data中
                 result = [(int(temp[1])+int(temp[0]))/2,int(temp[1])-int(temp[0])]
+                # print(result)
                 data.append(result)
                 # 注意data数据量以防止溢出
                 if len(data) >200:
                     # 数据组应该是50Hz收入
                     # 200组即保留时间4s
                     data.pop(0)
+                # print(len(data))
                 pf.PID(data)
-                pf.RUN(data)
+                pf.RUN()
                 error_times = error_times-1 if error_times else error_times
             except KeyboardInterrupt:
                 if ser != None:
